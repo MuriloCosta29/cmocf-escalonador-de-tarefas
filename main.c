@@ -156,4 +156,13 @@ int parse_input_file(const char *path, int *total_time) {
   return 1;
 }
 
-int main(void) { return EXIT_SUCCESS; }
+int main(int argc, char *argv[]) {
+  if (argc != 3)
+    die("Uso: %s <rate|edf> <arquivo_de_entrada>\n", argv[0]);
+
+  const char *alg_str = argv[1];
+  if (strcmp(alg_str, "rate") != 0 && strcmp(alg_str, "edf") != 0)
+    die("Erro: algoritmo desconhecido '%s'. Use 'rate' ou 'edf'.\n", alg_str);
+
+  return EXIT_SUCCESS;
+}
