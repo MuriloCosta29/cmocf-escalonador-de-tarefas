@@ -7,6 +7,7 @@
 
 #define LOGIN "cmocf"
 #define MAX_NAME 64
+#define MAX_LINE 256
 
 typedef enum { ALG_RATE, ALG_EDF } Algorithm;
 
@@ -93,6 +94,65 @@ int parse_positive_int(const char *s, int *out) {
   if (val <= 0)
     return 0;
   *out = (int)val;
+  return 1;
+}
+
+int parse_input_file(const char *path, int *total_time) {
+  FILE *f = fopen(path, "r");
+  if (!f)
+    die("Erro: nao foi possivel abrir o arquivo '%s'.\n", path);
+
+  char line[MAX_LINE];
+
+  if (!fgets(line, sizeof line, f))
+    die("Erro: arquivo de entrada vazio.\n");
+
+  char *first = trim(line);
+  if (!parse_positive_int(first, total_time))
+    die("Erro: tempo total de simulacao invalido.\n");
+
+  int line_no = 1;
+  while (fgets(line, sizeof line, f)) {
+    line_no++;
+    char *s = trim(line);
+    if (*s == '\0')
+      continue;
+
+    char *name = strtok(s, " \t");
+    char *period_str = strtok(NULL, " \t");
+    char *deadline_str = strtok(NULL, " \t");
+    char *burst_str = strtok(NULL, " \t");
+    char *extra = strtok(NULL, " \t");
+
+    if (!name || !period_str || !deadline_str || !burst_str || extra)
+      die("Erro: numero de campos invalido na linha %d.\n", line_no);
+
+    if (strlen(name) >= MAX_NAME)
+      die("Erro: nome de tarefa muito longo na linha %d.\n", line_no);
+
+    Task t;
+    memset(&t, 0, sizeof t);
+    strcpy(t.name, name);
+
+    if (!parse_positive_int(period_str, &t.period))
+      die("Erro: periodo invalido na linha %d.\n", line_no);
+    if (!parse_positive_int(deadline_str, &t.deadline))
+      die("Erro: deadline invalido na linha %d.\n", line_no);
+    if (!parse_positive_int(burst_str, &t.burst))
+      die("Erro: rajada invalida na linha %d.\n", line_no);
+
+    if (!(t.burst <= t.deadline && t.deadline <= t.period))
+      die("Erro: tarefa na linha %d nao respeita C <= D <= P.\n", line_no);
+
+    t.file_index = n_tasks;
+    add_task(t);
+  }
+
+  fclose(f);
+
+  if (n_tasks == 0)
+    die("Erro: nenhuma tarefa encontrada no arquivo de entrada.\n");
+
   return 1;
 }
 
