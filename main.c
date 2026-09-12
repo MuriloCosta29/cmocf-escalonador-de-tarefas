@@ -168,6 +168,18 @@ int higher_priority(const Task *a, const Task *b, Algorithm alg) {
   return a->file_index < b->file_index;
 }
 
+void close_segment(FILE *out, int entity, int start, int end, char letter) {
+  if (end <= start)
+    return;
+
+  if (entity == -1) {
+    fprintf(out, "idle for %d units\n", end - start);
+  } else {
+    fprintf(out, "[%s] for %d units - %c\n", tasks[entity].name,
+            end - start, letter);
+  }
+}
+
 int main(int argc, char *argv[]) {
   if (argc != 3)
     die("Uso: %s <rate|edf> <arquivo_de_entrada>\n", argv[0]);
