@@ -156,6 +156,18 @@ int parse_input_file(const char *path, int *total_time) {
   return 1;
 }
 
+int higher_priority(const Task *a, const Task *b, Algorithm alg) {
+  if (alg == ALG_RATE) {
+    if (a->period != b->period)
+      return a->period < b->period;
+    return a->file_index < b->file_index;
+  }
+
+  if (a->abs_deadline != b->abs_deadline)
+    return a->abs_deadline < b->abs_deadline;
+  return a->file_index < b->file_index;
+}
+
 int main(int argc, char *argv[]) {
   if (argc != 3)
     die("Uso: %s <rate|edf> <arquivo_de_entrada>\n", argv[0]);
