@@ -180,6 +180,109 @@ void close_segment(FILE *out, int entity, int start, int end, char letter) {
   }
 }
 
+void run_simulation(Algorithm alg, int total_time, FILE *out) {
+  for (int i = 0; i < n_tasks; i++) {
+    tasks[i].is_active = 0;
+    tasks[i].remaining = 0;
+    tasks[i].abs_deadline = 0;
+    tasks[i].complete_count = 0;
+    tasks[i].lost_count = 0;
+    tasks[i].killed_count = 0;
+  }
+
+  if (alg == ALG_RATE) {
+    fprintf(out, "EXECUTION BY RATE\n\n");
+  } else {
+    fprintf(out, "EXECUTION BY EDF\n\n");
+  }
+
+  int running = -2;
+  int seg_start = 0;
+
+  for (int t = 0; t <= total_time; t++) {
+    for (int i = 0; i < n_tasks; i++) {
+      if (tasks[i].is_active && tasks[i].remaining > 0 &&
+          tasks[i].abs_deadline == t) {
+        tasks[i].lost_count++;
+        tasks[i].is_active = 0;
+        if (running == i) {
+          close_segment(out, running, seg_start, t, 'L');
+          running = -2;
+          seg_start = t;
+        }
+      }
+    }
+
+    if (t == total_time)
+      break;
+
+    for (int i = 0; i < n_tasks; i++) {
+      if (t % tasks[i].period == 0) {
+        tasks[i].is_active = 1;
+        tasks[i].remaining = tasks[i].burst;
+        tasks[i].abs_deadline = t + tasks[i].deadline;
+      }
+    }
+
+    int chosen = -1;
+    for (int i = 0; i < n_tasks; i++) {
+      if (tasks[i].is_active && tasks[i].remaining > 0) {
+        if (chosen == -1 || higher_priority(&tasks[i], &tasks[chosen], alg))
+          chosen = i;
+      }
+    }
+
+    if (chosen != running) {
+      if (running != -2) {
+        if (running == -1) {
+          close_segment(out, -1, seg_start, t, 0);
+        } else {
+          close_segment(out, running, seg_start, t, 'H');
+        }
+      }
+      running = chosen;
+      seg_start = t;
+    }
+
+    if (chosen != -1) {
+      tasks[chosen].remaining--;
+      if (tasks[chosen].remaining == 0) {
+        tasks[chosen].complete_count++;
+        tasks[chosen].is_active = 0;
+        close_segment(out, chosen, seg_start, t + 1, 'F');
+        running = -2;
+        seg_start = t + 1;
+      }
+    }
+  }
+
+  if (running != -2) {
+    if (running == -1) {
+      close_segment(out, -1, seg_start, total_time, 0);
+    } else {
+      close_segment(out, running, seg_start, total_time, 'K');
+    }
+  }
+
+  for (int i = 0; i < n_tasks; i++) {
+    if (tasks[i].is_active && tasks[i].remaining > 0) {
+      tasks[i].killed_count++;
+    }
+  }
+
+  fprintf(out, "\nLOST DEADLINES\n");
+  for (int i = 0; i < n_tasks; i++)
+    fprintf(out, "[%s] %d\n", tasks[i].name, tasks[i].lost_count);
+
+  fprintf(out, "\nCOMPLETE EXECUTION\n");
+  for (int i = 0; i < n_tasks; i++)
+    fprintf(out, "[%s] %d\n", tasks[i].name, tasks[i].complete_count);
+
+  fprintf(out, "\nKILLED\n");
+  for (int i = 0; i < n_tasks; i++)
+    fprintf(out, "[%s] %d\n", tasks[i].name, tasks[i].killed_count);
+}
+
 int main(int argc, char *argv[]) {
   if (argc != 3)
     die("Uso: %s <rate|edf> <arquivo_de_entrada>\n", argv[0]);
