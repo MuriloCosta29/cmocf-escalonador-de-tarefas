@@ -288,8 +288,28 @@ int main(int argc, char *argv[]) {
     die("Uso: %s <rate|edf> <arquivo_de_entrada>\n", argv[0]);
 
   const char *alg_str = argv[1];
-  if (strcmp(alg_str, "rate") != 0 && strcmp(alg_str, "edf") != 0)
+  Algorithm alg = ALG_RATE;
+  if (strcmp(alg_str, "rate") == 0) {
+    alg = ALG_RATE;
+  } else if (strcmp(alg_str, "edf") == 0) {
+    alg = ALG_EDF;
+  } else {
     die("Erro: algoritmo desconhecido '%s'. Use 'rate' ou 'edf'.\n", alg_str);
+  }
 
+  int total_time = 0;
+  parse_input_file(argv[2], &total_time);
+
+  char out_name[64];
+  snprintf(out_name, sizeof out_name, "%s_%s.out", alg_str, LOGIN);
+
+  FILE *out = fopen(out_name, "w");
+  if (!out)
+    die("Erro: nao foi possivel criar o arquivo de saida '%s'.\n", out_name);
+
+  run_simulation(alg, total_time, out);
+
+  fclose(out);
+  free(tasks);
   return EXIT_SUCCESS;
 }
