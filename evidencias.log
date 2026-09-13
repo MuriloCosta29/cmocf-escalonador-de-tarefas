@@ -1,0 +1,131 @@
+Script started on Sat Sep 12 21:19:34 2026
+Command: bash --norc --noprofile
+
+The default interactive shell is now zsh.
+To update your account to use zsh, please run `chsh -s /bin/zsh`.
+For more details, please visit https://support.apple.com/kb/HT208050.
+bash-3.2$ date
+Sat Sep 12 21:19:39 -03 2026
+bash-3.2$ whoami
+murilocosta
+bash-3.2$ pwd
+/Users/murilocosta/dev/01_college/3nd/college_projects/cmocf-escalonador-de-tarefas
+bash-3.2$ make clean
+rm -f scheduler *.o *.out
+bash-3.2$ make
+gcc -Wall -Wextra -std=c11 -O2 -o scheduler main.c
+bash-3.2$ cat tests/voo.txt
+100
+ATT 20 12 8
+NAV 50 30 15
+bash-3.2$ ./scheduler rate tests [K/voo.txt
+bash-3.2$ cat rate [K_cmocf.out 
+EXECUTION BY RATE
+
+[ATT] for 8 units - F
+[NAV] for 12 units - H
+[ATT] for 8 units - F
+[NAV] for 2 units - L
+idle for 10 units
+[ATT] for 8 units - F
+idle for 2 units
+[NAV] for 10 units - H
+[ATT] for 8 units - F
+[NAV] for 5 units - F
+idle for 7 units
+[ATT] for 8 units - F
+idle for 12 units
+
+LOST DEADLINES
+[ATT] 0
+[NAV] 1
+
+COMPLETE EXECUTION
+[ATT] 5
+[NAV] 1
+
+KILLED
+[ATT] 0
+[NAV] 0
+bash-3.2$ .s[K/scheduler edf tests/voo.txt 
+bash-3.2$ cat ed[Kdf_cmocf.out 
+EXECUTION BY EDF
+
+[ATT] for 8 units - F
+[NAV] for 15 units - F
+[ATT] for 8 units - F
+idle for 9 units
+[ATT] for 8 units - F
+idle for 2 units
+[NAV] for 10 units - H
+[ATT] for 8 units - F
+[NAV] for 5 units - F
+idle for 7 units
+[ATT] for 8 units - F
+idle for 12 units
+
+LOST DEADLINES
+[ATT] 0
+[NAV] 0
+
+COMPLETE EXECUTION
+[ATT] 5
+[NAV] 2
+
+KILLED
+[ATT] 0
+[NAV] 0
+bash-3.2$ ./se[Kcheduler 
+Uso: ./scheduler <rate|edf> <arquivo_de_entrada>
+bash-3.2$ echo "exit=([K%[K#[K$?"
+exit=1
+bash-3.2$ ./scheduler rate
+Uso: ./scheduler <rate|edf> <arquivo_de_entrada>
+bash-3.2$ ./scheduler rate[C[C[C[C[C[C[C[C[C[C[2Pecho "exit=$?"
+exit=1
+bash-3.2$ ./scheduler rate tests/voo.txt 
+bash-3.2$ ./scheduler rate tests/voo.txt argumento e[K[K_extra
+Uso: ./scheduler <rate|edf> <arquivo_de_entrada>
+bash-3.2$ ./scheduler rate tests/voo.txt argumento_extra[K[C[C[C[C[C[C[C[C[C[C[17Pecho "exit=$?"[C[C[C[C[C[C[C[C[C[C./scheduler rate[C[C[C[C[C[C[C[C[C[C[2Pecho "exit=$?"
+exit=1
+bash-3.2$ ./scheduler foo tests/voo.txt 
+Erro: algoritmo desconhecido 'foo'. Use 'rate' ou 'edf'.
+bash-3.2$ ./[K[K/s[K[K./scheduler rate cristiano [K_ronaldo.txt
+Erro: nao foi possivel abrir o arquivo 'cristiano_ronaldo.txt'.
+bash-3.2$ echo "exit([K=[K=$?"
+exit=1
+bash-3.2$ printf "100\nATT 20 12\n" > /tmp/bad_fields.txt
+bash-3.2$ ./scheduler rate /tmp/bad_fields.txt
+Erro: numero de campos invalido na linha 2.
+bash-3.2$ echo "exit=$?"
+exit=1
+bash-3.2$ printf "100\nATT abc 12 8\n" > /tmp/bad_value.txt
+bash-3.2$ ./scheduler rate /tmp/bad_value.txt
+Erro: periodo invalido na linha 2.
+bash-3.2$ echo "exit=$?"
+exit=1
+bash-3.2$ printf "100\nATT 0 12 8\n" > /tmp/bad_zero.txt
+bash-3.2$ ./scheduler rate /tmp/bad_zero.txt
+Erro: periodo invalido na linha 2.
+bash-3.2$ echo "exit=$?"
+exit=1
+bash-3.2$ 
+bash-3.2$ printf "100\nATT 20 12 15\n" > /tmp/bad_cd.txt
+bash-3.2$ ./scheduler rate /tmp/bad_cd.txt
+Erro: tarefa na linha 2 nao respeita C <= D <= P.
+bash-3.2$ echo "exit=$?"
+exit=1
+bash-3.2$ printf "100\nATT 20 30 8\n" > /tmp/bad_dp.txt
+bash-3.2$ ./scheduler rate /tmp/bad_dp.txt
+Erro: tarefa na linha 2 nao respeita C <= D <= P.
+bash-3.2$ echo "exit=$?"
+exit=1
+bash-3.2$ ls $*[K[K*.out
+edf_cmocf.out	rate_cmocf.out
+bash-3.2$ make clean
+rm -f scheduler *.o *.out
+bash-3.2$ exit[Kt
+exit
+
+Command exit status: 0
+Script done on Sat Sep 12 21:22:14 2026
